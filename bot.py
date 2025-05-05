@@ -35,9 +35,7 @@ async def send_welcome(message: types.Message):
     await message.answer("you are preparing for exam", reply_markup=menu_buttons)
 
 # Tugmalar bosilganda javob berish
-@dp.message_handler(lambda message: message.text == "📋 Menyu")
-async def show_menu(message: types.Message):
-    await message.answer("Bu yerda taomlar ro'yxati bo'ladi (keyinchalik qo'shamiz).")
+
 
 @dp.message_handler(lambda message: message.text == "ℹ️ Biz haqimizda")
 async def about(message: types.Message):
@@ -54,7 +52,7 @@ async def show_menu(message: types.Message):
     products = response.json()
 
     if not products:
-        await message.answer("Bu yerda taomlar ro'yxati bo'ladi (keyinchalik qo'shamiz).")
+        await message.answer("Hozircha menyuda taomlar yo‘q.")
     else:
         for product in products:
             keyboard = InlineKeyboardMarkup().add(
