@@ -17,6 +17,7 @@ def product_list(request):
     products = Product.objects.all()
     if not products:
         return Response({"message": "Bu yerda taomlar ro'yxati bo'ladi (keyinchalik qo'shamiz)."})
+
     data = []
     for product in products:
         data.append({

@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-import requests
+import aiohttp  # Asinxron HTTP so'rovlar uchun
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 API_TOKEN = '7689593005:AAH9Dg7dC2zkldSZxjjKHg8og5O7own0IJQ'
@@ -19,24 +19,23 @@ menu_buttons = ReplyKeyboardMarkup(
 )
 
 # /start komandasi
-
-
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     telegram_id = message.from_user.id
     full_name = message.from_user.full_name
 
-    # Django APIga foydalanuvchini yuborish
-    response = requests.post("http://localhost:8000/api/register/", json={
-        "telegram_id": telegram_id,
-        "full_name": full_name
-    })
-
-    await message.answer("you are preparing for exam", reply_markup=menu_buttons)
+    async with aiohttp.ClientSession() as session:
+        # Django APIga foydalanuvchini yuborish
+        async with session.post("http://localhost:8000/api/register/", json={
+            "telegram_id": telegram_id,
+            "full_name": full_name
+        }) as response:
+            if response.status == 200:
+                await message.answer("Siz imtihon uchun tayyorlanmoqdasiz", reply_markup=menu_buttons)
+            else:
+                await message.answer("Foydalanuvchi ro'yxatdan o'tishda xato yuz berdi.")
 
 # Tugmalar bosilganda javob berish
-
-
 @dp.message_handler(lambda message: message.text == "ℹ️ Biz haqimizda")
 async def about(message: types.Message):
     await message.answer("Biz imtihon uchun Telegram bot yaratmoqdamiz 😊")
@@ -45,11 +44,11 @@ async def about(message: types.Message):
 async def contact(message: types.Message):
     await message.answer("Aloqa: @admin_username")
 
-
 @dp.message_handler(lambda message: message.text == "📋 Menyu")
 async def show_menu(message: types.Message):
-    response = requests.get("http://127.0.0.1:8000/api/products/")
-    products = response.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.get("http://127.0.0.1:8000/api/products/") as response:
+            products = await response.json()
 
     if not products:
         await message.answer("Hozircha menyuda taomlar yo‘q.")

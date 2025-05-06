@@ -1,6 +1,9 @@
 import requests
-response = requests.get("http://127.0.0.1:8000/api/products/")
+response = requests.get('http://127.0.0.1:8000/api/products/')
 if response.status_code == 200:
-    products = response.json()
+    try:
+        products = response.json()
+    except ValueError:
+        print('No JSON response or invalid JSON')
 else:
-    print(f"Error {response.status_code}: {response.text}")
+    print(f"Request failed with status: {response.status_code}")
